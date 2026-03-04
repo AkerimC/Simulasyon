@@ -1,0 +1,14 @@
+# Derleme çıktıları
+build/
+simulasyon
+*.o
+*.out
+*.exe
+
+# İS/IDE artıkları
+.DS_Store
+.vscode/
+
+# Gereksiz dosyalar
+raaylib.cpp
+execute commands
