@@ -1,9 +1,12 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include <stdbool.h>
+
 #define WORLD_HEIGHT 100
 #define WORLD_WIDTH 100
 #define CELL_SIZE 10
+#define MAX_CLOUD 15
 
 typedef enum{SPRING, SUMMER, AUTUMN, WINTER} Season;
 typedef enum { FLOOR_GRASS, FLOOR_DIRT, FLOOR_STONE , FLOOR_SAND, FLOOR_WATER ,FLOOR_SNOW} CellType;
@@ -23,15 +26,29 @@ typedef struct {
     float temperature; // in Celsius
     float humidity;    // 0.0 to 1.0
     float windSpeed;   // in km/h
-    float pirecipitation; // in mm
+    float windDirection; // 0.0 to 360.0
+    float precipitation; // in mm
 
     CellType CellType;
 } Cell;
 
-extern Cell World[WORLD_WIDTH][WORLD_HEIGHT];
+typedef struct {
+    float x,y;
+    float width, height;
+    float speed;
+    float intensity;
+    bool active;
+} Cloud;
+
+extern Cell worldGrid[WORLD_WIDTH][WORLD_HEIGHT];
 extern Time myTime;
+extern Cloud clouds[MAX_CLOUD];
+
 void InitWorld();
+void InitClouds();
+void UpdateClouds(float windSpeed, float windDirection);
 void UpdateTime();
 void UpdateSeasons();
 void UpdateTemperature();
+void UpdateWind();
 #endif // WORLD_H
