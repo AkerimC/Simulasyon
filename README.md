@@ -8,8 +8,9 @@ A grid-based 2D world simulation built in C using the Raylib library. It feature
 - **Dynamic Time & Seasons:** Integrated time system simulating flow from hours, to days, months, and 4 distinct seasons (Spring, Summer, Autumn, Winter). 
 - **Environmental Shifts:**
   - **Day/Night Cycle:** The screen smoothly fades into darkness during nighttime hours (18:00 to 08:00) using realistic fading curves.
-  - **Temperature:** Temperature fluctuates both locally and globally based on the current season (and a bit of randomization).
-  - **Visual Weather:** During Winter, grass and dirt tiles dynamically frost over by blending with white, while water remains untouched.
+  - **Temperature & Wind:** Temperature and wind velocity fluctuate locally and globally based on the current season, affecting the simulation visually.
+  - **Dynamic Clouds & Weather:** Procedurally generated clouds drift across the screen propelled by the global wind speed and direction. Clouds with high intensity drop rain, or snow if the temperature is below freezing.
+  - **Seasonal Visuals:** The terrain's color palette shifts dynamically to reflect the current season (e.g., frost in Winter, orange hues in Summer, yellowing in Autumn).
 
 ## Building and Running
 
