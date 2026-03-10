@@ -51,4 +51,8 @@ void UpdateTime();
 void UpdateSeasons();
 void UpdateTemperature();
 void UpdateWind();
+
+float NoiseCreate(float nx, float ny);
+float FractalNoise(float nx, float ny, int octaves, float scale);
+void  NoiseSetSeed(int seed);
 #endif // WORLD_H

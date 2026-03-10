@@ -4,15 +4,17 @@
 #include "../include/gui.h"
 #include "../include/raygui.h"
 #include <stdlib.h>
+#include <time.h>
 
 int main(void)
 {
 
     InitWindow(WORLD_WIDTH * CELL_SIZE, WORLD_HEIGHT * CELL_SIZE, "World Simulation");
+    NoiseSetSeed((int)time(NULL)); 
     InitWorld();
     InitClouds();
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-
+    
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         myTime.timeOfDay += GetFrameTime() * 1;

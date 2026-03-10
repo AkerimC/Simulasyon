@@ -1,16 +1,25 @@
 # Raylib World Simulation
 
-A grid-based 2D world simulation built in C using the Raylib library. It features dynamically generated terrain, smooth day/night cycles, and seasonal temperature changes affecting the environment.
+A grid-based 2D world simulation built in C using the Raylib library. It features procedurally generated terrain via simplex noise, smooth day/night cycles, and seasonal temperature changes affecting the environment.
 
 ## Features
 
-- **Procedural World Generation:** Generates a randomized map of water, dirt, and grass cells upon launch.
-- **Dynamic Time & Seasons:** Integrated time system simulating flow from hours, to days, months, and 4 distinct seasons (Spring, Summer, Autumn, Winter). 
+- **Procedural World Generation (Simplex Noise):** Terrain is generated using a full 2D Simplex Noise implementation with a built-in permutation table, correct per-corner gradient hashing, and t⁴ surflet falloff. Layered octave noise (`FractalNoise`) produces coherent landmasses with water, dirt, grassland, and stone distributed naturally.
+- **Seed-Based Maps:** Every run uses a unique seed derived from the system clock (`time(NULL)`), producing a different world each time. A fixed seed can be set via `NoiseSetSeed(int seed)` for reproducible maps.
+- **Dynamic Time & Seasons:** Integrated time system simulating flow from hours, to days, months, and 4 distinct seasons (Spring, Summer, Autumn, Winter).
 - **Environmental Shifts:**
   - **Day/Night Cycle:** The screen smoothly fades into darkness during nighttime hours (18:00 to 08:00) using realistic fading curves.
   - **Temperature & Wind:** Temperature and wind velocity fluctuate locally and globally based on the current season, affecting the simulation visually.
   - **Dynamic Clouds & Weather:** Procedurally generated clouds drift across the screen propelled by the global wind speed and direction. Clouds with high intensity drop rain, or snow if the temperature is below freezing.
   - **Seasonal Visuals:** The terrain's color palette shifts dynamically to reflect the current season (e.g., frost in Winter, orange hues in Summer, yellowing in Autumn).
+
+## Noise API
+
+| Function | Description |
+|---|---|
+| `NoiseSetSeed(int seed)` | Shuffles permutation table with given seed (Fisher-Yates + LCG). Call before `InitWorld()`. |
+| `NoiseCreate(float x, float y)` | Returns a single 2D simplex noise value in `[-1, +1]`. |
+| `FractalNoise(float x, float y, int octaves, float scale)` | Layered octave noise, normalised to `[-1, +1]`. Used for terrain generation. |
 
 ## Building and Running
 
