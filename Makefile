@@ -9,6 +9,7 @@ BUILD_DIR = build
 
 # Kaynak kodlar ve nesne dosyaları
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
+HEADERS = $(wildcard $(INC_DIR)/*.h)
 OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SOURCES))
 
 # Çıktı dosyasının adı
@@ -22,7 +23,7 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(OBJECTS) -o $@ $(LDFLAGS)
 
 # Her bir .c dosyasını .o nesne (object) dosyasına dönüştürme adımı
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS)
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 

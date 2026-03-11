@@ -1,6 +1,8 @@
 #include "../include/world.h"
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
+#include <time.h>
 
 static const int PERM_SRC[256] = {
     151,160,137, 91, 90, 15,131, 13,201, 95, 96, 53,194,233,  7,225,
@@ -45,6 +47,13 @@ void NoiseSetSeed(int seed) {
     permReady = 1;
 }
 
+uint32_t hash(uint32_t x) {
+    x ^= x >> 16;
+    x *= 0x45d9f3b;
+    x ^= x >> 16;
+    return x;
+}
+
 
 static void ensurePerm(void) {
     if (permReady) return;
@@ -60,23 +69,91 @@ static const float GRAD2[12][2] = {
 Cell worldGrid[WORLD_WIDTH][WORLD_HEIGHT];
 Time myTime = {1, 1, 2026, 8.0f, WINTER};
 Cloud clouds[MAX_CLOUD];
+World world;
 
 void InitWorld() {
+    
+    world.seed = (int)time(NULL);
+    world.seed_elevation = hash(world.seed + 0);
+    world.seed_temperature = hash(world.seed + 1);
+    world.seed_moisture = hash(world.seed + 2);
+    world.seed_erosion = hash(world.seed + 3);
+
+    // Performans için geçici haritalar oluşturuyoruz (Stack üzerinde tahsis)
+    float h_map[WORLD_WIDTH][WORLD_HEIGHT];
+    float t_map[WORLD_WIDTH][WORLD_HEIGHT];
+    float m_map[WORLD_WIDTH][WORLD_HEIGHT];
+    float e_map[WORLD_WIDTH][WORLD_HEIGHT];
+
+    // Seed değiştirme işlemi ağır olduğu için (içerisinde döngü var), bunu 40.000 kere
+    // değil 4 kere yaparak haritaları ayrı turlarda hesaplıyoruz!
+    NoiseSetSeed(world.seed_elevation);
+    for (int x = 0; x < WORLD_WIDTH; x++)
+        for (int y = 0; y < WORLD_HEIGHT; y++)
+            h_map[x][y] = FractalNoise((float)x, (float)y, 6, 40.0f);
+
+    NoiseSetSeed(world.seed_temperature);
+    for (int x = 0; x < WORLD_WIDTH; x++)
+        for (int y = 0; y < WORLD_HEIGHT; y++)
+            t_map[x][y] = FractalNoise((float)x, (float)y, 3, 60.0f);
+
+    NoiseSetSeed(world.seed_moisture);
+    for (int x = 0; x < WORLD_WIDTH; x++)
+        for (int y = 0; y < WORLD_HEIGHT; y++)
+            m_map[x][y] = FractalNoise((float)x, (float)y, 5, 30.0f);
+
+    NoiseSetSeed(world.seed_erosion);
+    for (int x = 0; x < WORLD_WIDTH; x++)
+        for (int y = 0; y < WORLD_HEIGHT; y++)
+            e_map[x][y] = FractalNoise((float)x, (float)y, 4, 15.0f);
+
     for (int x = 0; x < WORLD_WIDTH; x++) {
         for (int y = 0; y < WORLD_HEIGHT; y++) {
 
-            float h = FractalNoise((float)x, (float)y, 3, 40.0f);
+            float height_map = h_map[x][y];
+            float temperature_map = t_map[x][y];
+            float moisture_map = m_map[x][y];
+            float erosion_map = e_map[x][y];
+            float final_elevation = height_map - erosion_map * 0.3f;
 
-            if      (h < -0.30f) worldGrid[x][y].CellType = FLOOR_WATER;
-            else if (h < -0.05f) worldGrid[x][y].CellType = FLOOR_DIRT;
-            else if (h <  0.45f) worldGrid[x][y].CellType = FLOOR_GRASS;
-            else                 worldGrid[x][y].CellType = FLOOR_STONE;
-
-            worldGrid[x][y].temperature  = -7.2f;
-            worldGrid[x][y].windSpeed    =  3.0f;
-            worldGrid[x][y].windDirection = 0.0f;
+            if      (final_elevation < -0.40f)                                          
+                worldGrid[x][y].CellType = FLOOR_DEEP_WATER;
+            else if (final_elevation < -0.20f)                                          
+                worldGrid[x][y].CellType = FLOOR_WATER;
+            else if (final_elevation < -0.10f)                                          
+                worldGrid[x][y].CellType = FLOOR_SHALLOW_WATER;
+            else if (final_elevation < -0.05f)                                          
+                worldGrid[x][y].CellType = FLOOR_BEACH;
+            else if (final_elevation <  0.00f && moisture_map > 0.3f)                  
+                worldGrid[x][y].CellType = FLOOR_SWAMP;
+            else if (final_elevation <  0.40f && temperature_map < -0.4f)              
+                worldGrid[x][y].CellType = FLOOR_TUNDRA;
+            else if (final_elevation <  0.40f && temperature_map < -0.1f)              
+                worldGrid[x][y].CellType = FLOOR_TAIGA;
+            else if (final_elevation <  0.40f && temperature_map >  0.4f && moisture_map < -0.2f) 
+                worldGrid[x][y].CellType = FLOOR_DESERT;
+            else if (final_elevation <  0.40f && temperature_map >  0.2f && moisture_map <  0.1f) 
+                worldGrid[x][y].CellType = FLOOR_SAVANNA;
+            else if (final_elevation <  0.40f && temperature_map >  0.3f && moisture_map >  0.3f) 
+                worldGrid[x][y].CellType = FLOOR_TROPICAL;
+            else if (final_elevation <  0.40f)                                          
+                worldGrid[x][y].CellType = FLOOR_GRASS;
+            else if (final_elevation <  0.55f)                                          
+                worldGrid[x][y].CellType = FLOOR_DIRT;
+            else if (final_elevation <  0.70f)                                          
+                worldGrid[x][y].CellType = FLOOR_STONE;
+            else if (final_elevation <  0.85f)                                         
+                worldGrid[x][y].CellType = FLOOR_MOUNTAIN;
+            else if (temperature_map >  0.5f)                                           
+                worldGrid[x][y].CellType = FLOOR_VOLCANIC;
+            else                                                                         
+                worldGrid[x][y].CellType = FLOOR_SNOW;
         }
     }
+
+    // Isı ve rüzgar döngüler tamamlandıktan SONRA güncellenmelidir!
+    UpdateTemperature();
+    UpdateWind();
 }
 
 void InitClouds(){
@@ -160,28 +237,24 @@ void UpdateTemperature(){
     //kışın 5,6 ilk 14,9 yaz 26,4 son 17,2 ay içinde +-10 derece 
     // gün içinde +-5 derece 
     // gün içinde sıcaklık değişmesi yapılmadı
-    if(myTime.currentSeason == WINTER) baseTemp = 5.6f;
-    else if(myTime.currentSeason == SPRING) baseTemp = 14.9f;
-    else if(myTime.currentSeason == SUMMER) baseTemp = 26.4f;
-    else if(myTime.currentSeason == AUTUMN) baseTemp = 17.2f;
+    if(myTime.currentSeason == WINTER) baseTemp = -10.0f;
+    else if(myTime.currentSeason == SPRING) baseTemp = 0.0f;
+    else if(myTime.currentSeason == SUMMER) baseTemp = 12.0f;
+    else if(myTime.currentSeason == AUTUMN) baseTemp = 3.0f;
 
     for(int x=0; x<WORLD_WIDTH; x++){
         for(int y=0; y<WORLD_HEIGHT; y++){
-            float luck = (rand() % 15) - 7.5f;
-            worldGrid[x][y].temperature = baseTemp + luck;
+            float luck = (rand() % 12) - 6.0f;
+            worldGrid[x][y].temperature += baseTemp + luck;
         }
     }
 }
 
 void UpdateWind(){
-    for(int x=0; x<WORLD_WIDTH; x++){
-        for(int y=0; y<WORLD_HEIGHT; y++){
-            float luck = (rand() % 3);
-            float direction = (rand() % 360);
-            worldGrid[x][y].windSpeed = luck + 0.5f;
-            worldGrid[x][y].windDirection = direction;
-        }
-    }
+    float luck = (rand() % 3);
+    float direction = (rand() % 360);
+    world.windSpeed = luck + 0.5f;
+    world.windDirection = direction;
 }
 
 

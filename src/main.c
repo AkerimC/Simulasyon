@@ -10,7 +10,7 @@ int main(void)
 {
 
     InitWindow(WORLD_WIDTH * CELL_SIZE, WORLD_HEIGHT * CELL_SIZE, "World Simulation");
-    NoiseSetSeed((int)time(NULL)); 
+
     InitWorld();
     InitClouds();
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
@@ -21,7 +21,7 @@ int main(void)
         //myTime.day += 1;
         UpdateTime();
 
-        UpdateClouds(worldGrid[0][0].windSpeed, worldGrid[0][0].windDirection);
+        UpdateClouds(world.windSpeed, world.windDirection);
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
@@ -30,7 +30,7 @@ int main(void)
         DrawSunFade(myTime.timeOfDay);
 
         const char* seasonNames[] = {"SPRING", "SUMMER", "AUTUMN", "WINTER"};
-        DrawText(TextFormat("Saat: %.2f Day: %d Month:%d Season:%s Temperature: %.2f Wind Speed: %.2f Wind Direction: %.2f" , myTime.timeOfDay, myTime.day, myTime.month, seasonNames[myTime.currentSeason], worldGrid[0][0].temperature, worldGrid[0][0].windSpeed, worldGrid[0][0].windDirection), 10, 10, 20, BLACK );
+        DrawText(TextFormat("Saat: %.2f Day: %d Month:%d Season:%s Temperature: %.2f Wind Speed: %.2f Wind Direction: %.2f" , myTime.timeOfDay, myTime.day, myTime.month, seasonNames[myTime.currentSeason], worldGrid[0][0].temperature, world.windSpeed, world.windDirection), 10, 10, 20, BLACK );
         EndDrawing();
         //----------------------------------------------------------------------------------
     }

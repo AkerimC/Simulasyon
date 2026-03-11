@@ -4,8 +4,8 @@ A grid-based 2D world simulation built in C using the Raylib library. It feature
 
 ## Features
 
-- **Procedural World Generation (Simplex Noise):** Terrain is generated using a full 2D Simplex Noise implementation with a built-in permutation table, correct per-corner gradient hashing, and t⁴ surflet falloff. Layered octave noise (`FractalNoise`) produces coherent landmasses with water, dirt, grassland, and stone distributed naturally.
-- **Seed-Based Maps:** Every run uses a unique seed derived from the system clock (`time(NULL)`), producing a different world each time. A fixed seed can be set via `NoiseSetSeed(int seed)` for reproducible maps.
+- **Advanced Procedural World Generation:** Terrain is generated using a full 2D Simplex Noise implementation with layered octave noise (`FractalNoise`). To create highly diverse and realistic worlds, the engine calculates 4 distinct noise maps: **Elevation, Temperature, Moisture, and Erosion**. These are combined to form 19 different complex biomes including Deep Oceans, Swamps, Tundras, Taigas, Deserts, Savannas, Tropical Forests, Volcanic regions, and Mountains.
+- **Multi-Seed Logic:** Every run uses a unique master seed derived from the system clock (`time(NULL)`). This master seed is hashed to produce 4 separate, deterministic sub-seeds for the environmental maps, guaranteeing a completely different but coherent world each time.
 - **Dynamic Time & Seasons:** Integrated time system simulating flow from hours, to days, months, and 4 distinct seasons (Spring, Summer, Autumn, Winter).
 - **Environmental Shifts:**
   - **Day/Night Cycle:** The screen smoothly fades into darkness during nighttime hours (18:00 to 08:00) using realistic fading curves.

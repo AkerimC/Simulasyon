@@ -10,28 +10,28 @@ void DrawWorld(Cell (*worldGrid)[WORLD_HEIGHT]) {
         for (int y = 0; y < WORLD_HEIGHT; y++) {
             Cell cell = worldGrid[x][y];
             Color color;
-
+            
             switch (cell.CellType) {
-                case FLOOR_GRASS:
-                    color = GREEN;
-                    break;
-                case FLOOR_DIRT:
-                    color = BROWN;
-                    break;
-                case FLOOR_STONE:
-                    color = GRAY;
-                    break;
-                case FLOOR_SAND:
-                    color = YELLOW;
-                    break;
-                case FLOOR_WATER:
-                    color = BLUE;
-                    break;
-                case FLOOR_SNOW:
-                    color = WHITE;
-                    break;
-                default:
-                    color = BLACK; // Default color for unknown types
+                case FLOOR_GRASS:         color = (Color){34,  139, 34,  255}; break; // orman yeşili
+                case FLOOR_DIRT:          color = (Color){139, 90,  43,  255}; break; // toprak
+                case FLOOR_STONE:         color = (Color){120, 120, 120, 255}; break; // taş
+                case FLOOR_SAND:          color = (Color){210, 180, 100, 255}; break; // kum
+                case FLOOR_WATER:         color = (Color){64,  164, 223, 255}; break; // normal su
+                case FLOOR_SNOW:          color = (Color){240, 248, 255, 255}; break; // kar
+                case FLOOR_DEEP_WATER:    color = (Color){20,  60,  150, 255}; break; // derin okyanus
+                case FLOOR_SHALLOW_WATER: color = (Color){100, 190, 230, 255}; break; // sığ su
+                case FLOOR_BEACH:         color = (Color){238, 214, 175, 255}; break; // plaj
+                case FLOOR_SWAMP:         color = (Color){80,  100, 50,  255}; break; // bataklık
+                case FLOOR_ICE:           color = (Color){180, 220, 240, 255}; break; // buz
+                case FLOOR_TUNDRA:        color = (Color){150, 160, 130, 255}; break; // tundra
+                case FLOOR_TAIGA:         color = (Color){40,  100, 60,  255}; break; // iğne yapraklı orman
+                case FLOOR_DESERT:        color = (Color){200, 150, 60,  255}; break; // çöl
+                case FLOOR_SAVANNA:       color = (Color){180, 160, 60,  255}; break; // savan
+                case FLOOR_TROPICAL:      color = (Color){20,  120, 40,  255}; break; // tropikal orman
+                case FLOOR_LAVA:          color = (Color){200, 50,  10,  255}; break; // lav
+                case FLOOR_VOLCANIC:      color = (Color){60,  40,  40,  255}; break; // volkanik taş
+                case FLOOR_MOUNTAIN:      color = (Color){90,  80,  75,  255}; break; // dağ
+                default:                  color = BLACK;                        break;
             }
             if (myTime.currentSeason == WINTER && worldGrid[x][y].CellType != FLOOR_WATER) {
                 color = ColorLerp(color, RAYWHITE, 0.3f); 
