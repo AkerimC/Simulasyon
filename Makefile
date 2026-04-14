@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -Iinclude
-LDFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+CFLAGS = -Wall -Wextra -std=c99 -Iinclude -fsanitize=address -g
+LDFLAGS = -fsanitize=address -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 # Klasörler
 SRC_DIR = src

@@ -2,6 +2,6 @@
 #include "raygui.h"
 #include "world.h"
 
-void DrawWorld(Cell (*worldGrid)[WORLD_HEIGHT]);
+void DrawWorld(void);
 void DrawSunFade(float time);
 void DrawClouds(Cloud clouds[MAX_CLOUD]);
